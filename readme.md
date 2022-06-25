@@ -1,6 +1,7 @@
 # PLEX Janitor
 
-This script requires python 3.9+ and [poetry](https://python-poetry.org/).
+This script deletes watched episodes and films. It does not delete the last seen episode for a show. 
+It requires python 3.9+ and [poetry](https://python-poetry.org/).
 
 Install:
 
