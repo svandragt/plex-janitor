@@ -6,9 +6,9 @@ Create `config.ini` with the following contents:
 
 ```ini
 [Plex]
-user = "<username>"
-pass = "<password>"
-name = "<plex servername>"
+username = <username>
+password = <password>
+servername = <plex servername>
 ```
 
 Run the script:
