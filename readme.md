@@ -30,6 +30,6 @@ The script makes the following assumptions:
   - Plays is greater than 0
   - AND Collection is not Keep
 
-This script will then go through each section and list deletable items. For TV Shows the most recent episode will be kept, as a marker for future seasons.
+This script will then go through each section and list deletable items. For TV Shows the most recent episode will be kept, as a marker for the last seen episode.
 
 By default deletable items are listed but not deleted. By passing `delete` as a script parameter, items will be actually deleted!
