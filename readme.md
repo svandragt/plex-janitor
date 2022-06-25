@@ -1,5 +1,7 @@
 # PLEX Janitor
 
+This script requires python 3.9+ and [poetry](https://python-poetry.org/).
+
 Install:
 
 Create `config.ini` with the following contents:
