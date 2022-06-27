@@ -29,18 +29,19 @@ items = {}
 for ep in plex.library.section("TV Shows").collection("Deletable TV").items():
     if ep.show() in items:
         prev = items[ep.show()]
-        print("deletable", prev)
         if action == "delete":
             prev.delete()
             print("deleted", prev)
-
+        else:
+            print("deletable", prev)
     items[ep.show()] = ep
 
 # delete films
 print("")
 print("FILMS")
 for film in plex.library.section("Movies").collection("Deletable Movies").items():
-    print("deletable", film)
     if action == "delete":
         film.delete()
         print("deleted", film)
+    else:
+        print("deletable", film)
