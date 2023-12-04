@@ -23,9 +23,9 @@ poetry run python plexjanitor.py
 
 The script makes the following assumptions:
 
-- There's two sections: "TV Shows" and "Movies"
+- There's two sections: "TV Shows" and "Films"
 - The TV Shows section has a collection "Keep" and a collection "Deletable TV"
-- The Movies section has a collection "Keep" and a collection "Deletable Movies"
+- The Films section has a collection "Keep" and a collection "Deletable Films"
 - Add items to the Keep collection manually (for TV Shows tag the show, not the episode). These will not be deleted.
 - The Deletable* collections must have these filters:
   - Plays is greater than 0

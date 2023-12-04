@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import sys
 import configparser
+
+import plexapi
 from plexapi.myplex import MyPlexAccount
 
 # script action
@@ -26,12 +28,26 @@ plex = account.resource(servername).connect()  # returns a PlexServer instance
 print("")
 print("TV")
 items = {}
+
+
+def try_delete(item):
+    try:
+        print(item.locations)
+        item.delete()
+        print("deleted", item)
+    except plexapi.exceptions.BadRequest as e:
+        print(f"Error: {e}")
+        # Handle the specific exception (BadRequest) as needed
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        # Handle other exceptions here
+
+
 for ep in plex.library.section("TV Shows").collection("Deletable TV").items():
     if ep.show() in items:
         prev = items[ep.show()]
         if action == "delete":
-            prev.delete()
-            print("deleted", prev)
+            try_delete(prev)
         else:
             print("deletable", prev)
     items[ep.show()] = ep
@@ -39,9 +55,9 @@ for ep in plex.library.section("TV Shows").collection("Deletable TV").items():
 # delete films
 print("")
 print("FILMS")
-for film in plex.library.section("Movies").collection("Deletable Movies").items():
+for film in plex.library.section("Films").collection("Deletable Films").items():
     if action == "delete":
-        film.delete()
+        try_delete(film)
         print("deleted", film)
     else:
         print("deletable", film)
