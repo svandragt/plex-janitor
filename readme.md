@@ -1,6 +1,10 @@
 # PLEX Janitor
 
-This script deletes watched episodes and films. It does not delete the last seen episode for a show. 
+This script lists and optionally deletes watched episodes and films in Plex.
+
+* It keeps the last seen episode of a show, so you can continue where you left off.
+* Prevent your favourites from being deleted by putting series / films in a Keep collection.
+
 It requires python 3.9+ and [poetry](https://python-poetry.org/).
 
 Install:
