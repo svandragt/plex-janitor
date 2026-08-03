@@ -5,7 +5,7 @@ This script lists and optionally deletes watched episodes and films in Plex.
 * It keeps the last seen episode of a show, so you can continue where you left off.
 * Prevent your favourites from being deleted by putting series / films in a Keep collection.
 
-It requires python 3.9+ and [poetry](https://python-poetry.org/).
+It requires python 3.9+ and [uv](https://docs.astral.sh/uv/).
 
 Install:
 
@@ -21,8 +21,7 @@ servername = <plex servername>
 Run the script:
 
 ```shell
-poetry install
-poetry run python plexjanitor.py
+uv run python plexjanitor.py
 ```
 
 The script makes the following assumptions:
@@ -38,3 +37,11 @@ The script makes the following assumptions:
 This script will then go through each section and list deletable items. For TV Shows the most recent episode will be kept, as a marker for the last seen episode.
 
 By default deletable items are listed but not deleted. By passing `delete` as a script parameter, items will be actually deleted!
+
+## Development
+
+```shell
+uv run ruff check .          # lint
+uv run ruff format .         # format
+uv run pytest                # run tests
+```
