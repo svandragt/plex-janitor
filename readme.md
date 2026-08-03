@@ -45,3 +45,5 @@ uv run ruff check .          # lint
 uv run ruff format .         # format
 uv run pytest                # run tests
 ```
+
+See [RELEASING.md](RELEASING.md) for how to cut a new release.
