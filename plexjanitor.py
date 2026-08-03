@@ -17,11 +17,16 @@ def try_delete(item):
         print(f"An unexpected error occurred: {e}")
 
 
+def episode_sort_key(ep):
+    return (ep.seasonNumber or 0, ep.episodeNumber or 0)
+
+
 def clean_tv(section, action):
     print("")
     print("TV")
     items = {}
-    for ep in section.collection("Deletable TV").items():
+    episodes = sorted(section.collection("Deletable TV").items(), key=episode_sort_key)
+    for ep in episodes:
         if ep.show() in items:
             prev = items[ep.show()]
             if action == "delete":
@@ -43,7 +48,10 @@ def clean_films(section, action):
 
 def connect(config_path="config.ini"):
     config = configparser.RawConfigParser()
-    config.read(config_path)
+    if not config.read(config_path):
+        sys.exit(f"Error: could not read config file '{config_path}'")
+    if not config.has_section("Plex"):
+        sys.exit(f"Error: '{config_path}' is missing a [Plex] section")
     username = config.get("Plex", "username")
     password = config.get("Plex", "password")
     servername = config.get("Plex", "servername")
@@ -55,6 +63,8 @@ def connect(config_path="config.ini"):
 def main():
     if len(sys.argv) >= 2:
         action = sys.argv[1]
+        if action != "delete":
+            print(f'Warning: unrecognized action "{action}", treating as dry run')
     else:
         action = "dryrun"
         print('Note: To delete, add "delete" as the script parameter')
