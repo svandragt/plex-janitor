@@ -5,7 +5,7 @@ This script lists and optionally deletes watched episodes and films in Plex.
 * It keeps the last seen episode of a show, so you can continue where you left off.
 * Prevent your favourites from being deleted by putting series / films in a Keep collection.
 
-It requires python 3.9+ and [uv](https://docs.astral.sh/uv/).
+It requires python 3.10+ and [uv](https://docs.astral.sh/uv/).
 
 Install:
 
