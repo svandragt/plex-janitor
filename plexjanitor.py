@@ -1,33 +1,9 @@
 #!/usr/bin/env python3
-import sys
 import configparser
+import sys
 
 import plexapi
 from plexapi.myplex import MyPlexAccount
-
-# script action
-if len(sys.argv) >= 2:
-    action = sys.argv[1]
-else:
-    action = "dryrun"
-    print('Note: To delete, add "delete" as the script parameter')
-print("Action:", action)
-
-# read config
-configparser = configparser.RawConfigParser()
-configparser.read(r"config.ini")
-username = configparser.get("Plex", "username")
-password = configparser.get("Plex", "password")
-servername = configparser.get("Plex", "servername")
-
-# sign in
-account = MyPlexAccount(username, password)
-plex = account.resource(servername).connect()  # returns a PlexServer instance
-
-# delete tv shows ep
-print("")
-print("TV")
-items = {}
 
 
 def try_delete(item):
@@ -37,27 +13,57 @@ def try_delete(item):
         print("deleted", item)
     except plexapi.exceptions.BadRequest as e:
         print(f"Error: {e}")
-        # Handle the specific exception (BadRequest) as needed
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-        # Handle other exceptions here
 
 
-for ep in plex.library.section("TV Shows").collection("Deletable TV").items():
-    if ep.show() in items:
-        prev = items[ep.show()]
+def clean_tv(section, action):
+    print("")
+    print("TV")
+    items = {}
+    for ep in section.collection("Deletable TV").items():
+        if ep.show() in items:
+            prev = items[ep.show()]
+            if action == "delete":
+                try_delete(prev)
+            else:
+                print("deletable", prev)
+        items[ep.show()] = ep
+
+
+def clean_films(section, action):
+    print("")
+    print("FILMS")
+    for film in section.collection("Deletable Films").items():
         if action == "delete":
-            try_delete(prev)
+            try_delete(film)
         else:
-            print("deletable", prev)
-    items[ep.show()] = ep
+            print("deletable", film)
 
-# delete films
-print("")
-print("FILMS")
-for film in plex.library.section("Films").collection("Deletable Films").items():
-    if action == "delete":
-        try_delete(film)
-        print("deleted", film)
+
+def connect(config_path="config.ini"):
+    config = configparser.RawConfigParser()
+    config.read(config_path)
+    username = config.get("Plex", "username")
+    password = config.get("Plex", "password")
+    servername = config.get("Plex", "servername")
+
+    account = MyPlexAccount(username, password)
+    return account.resource(servername).connect()
+
+
+def main():
+    if len(sys.argv) >= 2:
+        action = sys.argv[1]
     else:
-        print("deletable", film)
+        action = "dryrun"
+        print('Note: To delete, add "delete" as the script parameter')
+    print("Action:", action)
+
+    plex = connect()
+    clean_tv(plex.library.section("TV Shows"), action)
+    clean_films(plex.library.section("Films"), action)
+
+
+if __name__ == "__main__":
+    main()

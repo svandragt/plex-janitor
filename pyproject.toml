@@ -1,17 +1,18 @@
-[tool.poetry]
+[project]
 name = "plexjanitor"
 version = "0.1.0"
 description = "clear up plex"
-authors = ["Sander van Dragt <sander@vandragt.com>"]
+authors = [{ name = "Sander van Dragt", email = "sander@vandragt.com" }]
 license = "MIT"
+requires-python = ">=3.9"
+dependencies = ["plexapi>=4.17.2"]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-PlexAPI = "^4.11.2"
+[dependency-groups]
+dev = ["pytest>=8.3.5", "ruff>=0.11.0"]
 
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
+[tool.ruff.lint]
+select = ["E", "F", "I"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
