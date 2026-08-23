@@ -138,6 +138,19 @@ def test_clean_tv_five_star_series_goes_to_keep_and_keeps_episodes():
     ep2.delete.assert_not_called()
 
 
+def test_clean_tv_five_star_series_kept_even_as_single_episode():
+    # Only the marker episode is deletable, but a 5-star series must still
+    # move to Keep rather than linger in Deletable.
+    ep, show = make_episode("Foo", episode=1, show_rating=10)
+    section = MagicMock()
+    section.collection.return_value.items.return_value = [ep]
+
+    plexjanitor.clean_tv(section, action="delete")
+
+    show.addCollection.assert_called_once_with("Keep")
+    ep.delete.assert_not_called()
+
+
 def test_try_delete_swallows_bad_request():
     item = MagicMock()
     item.delete.side_effect = plexapi.exceptions.BadRequest("nope")

@@ -49,15 +49,16 @@ def clean_tv(section, action):
     kept = set()
     episodes = sorted(section.collection("Deletable TV").items(), key=episode_sort_key)
     for ep in episodes:
-        if ep.show() in items:
-            prev = items[ep.show()]
-            if keep_if_starred(prev.show(), action, kept):
-                pass
-            elif action == "delete":
+        show = ep.show()
+        if keep_if_starred(show, action, kept):
+            continue  # 5-star series: rescue the whole show, never delete its episodes
+        if show in items:
+            prev = items[show]
+            if action == "delete":
                 try_delete(prev)
             else:
                 print("deletable", prev)
-        items[ep.show()] = ep
+        items[show] = ep
 
 
 def clean_films(section, action):
