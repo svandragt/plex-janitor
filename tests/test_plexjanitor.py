@@ -5,13 +5,20 @@ import plexapi.exceptions
 import plexjanitor
 
 
-def make_episode(show_name, season=1, episode=1):
+def make_episode(show_name, season=1, episode=1, show_rating=None):
     show = MagicMock(name=f"show-{show_name}")
+    show.userRating = show_rating
     ep = MagicMock()
     ep.show.return_value = show
     ep.seasonNumber = season
     ep.episodeNumber = episode
     return ep, show
+
+
+def make_film(rating=None):
+    film = MagicMock()
+    film.userRating = rating
+    return film
 
 
 def test_clean_tv_keeps_last_episode_per_show_dryrun(capsys):
@@ -71,8 +78,8 @@ def test_clean_tv_does_not_delete_single_episode_shows():
 
 
 def test_clean_films_deletes_all_when_action_is_delete():
-    film1 = MagicMock()
-    film2 = MagicMock()
+    film1 = make_film()
+    film2 = make_film()
     section = MagicMock()
     section.collection.return_value.items.return_value = [film1, film2]
 
@@ -83,13 +90,52 @@ def test_clean_films_deletes_all_when_action_is_delete():
 
 
 def test_clean_films_dryrun_deletes_nothing():
-    film1 = MagicMock()
+    film1 = make_film()
     section = MagicMock()
     section.collection.return_value.items.return_value = [film1]
 
     plexjanitor.clean_films(section, action="dryrun")
 
     film1.delete.assert_not_called()
+
+
+def test_clean_films_five_star_goes_to_keep_not_deleted():
+    keeper = make_film(rating=10)
+    doomed = make_film(rating=None)
+    section = MagicMock()
+    section.collection.return_value.items.return_value = [keeper, doomed]
+
+    plexjanitor.clean_films(section, action="delete")
+
+    keeper.addCollection.assert_called_once_with("Keep")
+    keeper.delete.assert_not_called()
+    doomed.delete.assert_called_once()
+
+
+def test_clean_films_five_star_dryrun_does_not_mutate():
+    keeper = make_film(rating=10)
+    section = MagicMock()
+    section.collection.return_value.items.return_value = [keeper]
+
+    plexjanitor.clean_films(section, action="dryrun")
+
+    keeper.addCollection.assert_not_called()
+    keeper.delete.assert_not_called()
+
+
+def test_clean_tv_five_star_series_goes_to_keep_and_keeps_episodes():
+    ep1, show = make_episode("Foo", episode=1, show_rating=10)
+    ep2, _ = make_episode("Foo", episode=2)
+    ep2.show.return_value = show  # same 5-star show
+
+    section = MagicMock()
+    section.collection.return_value.items.return_value = [ep1, ep2]
+
+    plexjanitor.clean_tv(section, action="delete")
+
+    show.addCollection.assert_called_once_with("Keep")
+    ep1.delete.assert_not_called()
+    ep2.delete.assert_not_called()
 
 
 def test_try_delete_swallows_bad_request():

@@ -3,7 +3,28 @@ import configparser
 import sys
 
 import plexapi
-from plexapi.myplex import MyPlexAccount
+from plexapi.server import PlexServer
+
+# Plex userRating is 0-10; 5 stars = 10.0.
+FIVE_STARS = 10
+
+
+def keep_if_starred(item, action, kept):
+    """Rescue a 5-star item into the Keep collection instead of deleting it.
+
+    `item` is what goes into Keep (a show or a film). Returns True if kept.
+    Adds to Keep only in delete mode; reports in dry run.
+    """
+    if not (item.userRating and item.userRating >= FIVE_STARS):
+        return False
+    if item.ratingKey not in kept:
+        kept.add(item.ratingKey)
+        if action == "delete":
+            item.addCollection("Keep")
+            print("kept (5 star)", item)
+        else:
+            print("would keep (5 star)", item)
+    return True
 
 
 def try_delete(item):
@@ -25,11 +46,14 @@ def clean_tv(section, action):
     print("")
     print("TV")
     items = {}
+    kept = set()
     episodes = sorted(section.collection("Deletable TV").items(), key=episode_sort_key)
     for ep in episodes:
         if ep.show() in items:
             prev = items[ep.show()]
-            if action == "delete":
+            if keep_if_starred(prev.show(), action, kept):
+                pass
+            elif action == "delete":
                 try_delete(prev)
             else:
                 print("deletable", prev)
@@ -39,7 +63,10 @@ def clean_tv(section, action):
 def clean_films(section, action):
     print("")
     print("FILMS")
+    kept = set()
     for film in section.collection("Deletable Films").items():
+        if keep_if_starred(film, action, kept):
+            continue
         if action == "delete":
             try_delete(film)
         else:
@@ -52,12 +79,9 @@ def connect(config_path="config.ini"):
         sys.exit(f"Error: could not read config file '{config_path}'")
     if not config.has_section("Plex"):
         sys.exit(f"Error: '{config_path}' is missing a [Plex] section")
-    username = config.get("Plex", "username")
-    password = config.get("Plex", "password")
-    servername = config.get("Plex", "servername")
-
-    account = MyPlexAccount(username, password)
-    return account.resource(servername).connect()
+    baseurl = config.get("Plex", "baseurl")
+    token = config.get("Plex", "token")
+    return PlexServer(baseurl, token)
 
 
 def main():
